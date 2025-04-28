@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551776672781",
+    "project_id": "comicvproject",
+    "storage_bucket": "comicvproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551776672781:android:ac115d0881a79b68140944",
+        "android_client_info": {
+          "package_name": "com.example.comicv_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC_ryh-pI8YmtlF6AVKmdFtdzTnCV90r_8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
