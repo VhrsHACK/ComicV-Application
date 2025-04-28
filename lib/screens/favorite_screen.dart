@@ -92,12 +92,13 @@ class FavoriteScreen extends StatelessWidget {
 }
 */
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'detail_screen.dart';
 
 class FavoriteScreen extends StatelessWidget {
-  static final List<Map<String, String>> favorites = [];
-
   const FavoriteScreen({super.key});
 
   @override
@@ -117,77 +118,89 @@ class FavoriteScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(252, 51, 78, 197),
         automaticallyImplyLeading: false,
       ),
-      body:
-          favorites.isEmpty
-              ? const Center(
-                child: Text(
-                  "No favorites yet!",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('favorites').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text(
+                "No favorites yet!",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
-              )
-              : ListView.builder(
-                itemCount: favorites.length,
-                itemBuilder: (context, index) {
-                  final favorite = favorites[index];
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigasi ke DetailScreen dengan data produk favorit
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => DetailScreen(
-                                image: favorite['image']!,
-                                title: favorite['title']!,
-                                author: favorite['author']!,
-                                price: favorite['price']!,
-                                category: favorite['category']!,
-                              ),
-                        ),
-                      );
-                    },
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
-                      ),
-                      child: ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            favorite['image']!,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
+              ),
+            );
+          }
+
+          final favoriteDocs = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: favoriteDocs.length,
+            itemBuilder: (context, index) {
+              final favorite = favoriteDocs[index];
+              return GestureDetector(
+                onTap: () {
+                  // Navigasi ke DetailScreen dengan data produk favorit
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => DetailScreen(
+                            image: favorite['image'],
+                            title: favorite['title'],
+                            author: favorite['author'],
+                            price: favorite['price'],
+                            category: favorite['category'],
+                            description: favorite['description'],
                           ),
-                        ),
-                        title: Text(
-                          favorite['title']!,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        subtitle: Text(
-                          "Author: ${favorite['author']!}\nPrice: ${favorite['price']!}",
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                        trailing: Text(
-                          favorite['category']!,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ),
                     ),
                   );
                 },
-              ),
+                child: Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: ListTile(
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child:
+                          favorite['image'] != null
+                              ? Image.memory(
+                                base64Decode(favorite['image']),
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              )
+                              : const Icon(Icons.image, size: 50),
+                    ),
+                    title: Text(
+                      favorite['title'] ?? 'No Title',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      "Author: ${favorite['author'] ?? 'Unknown'}\nPrice: ${favorite['price'] ?? 'N/A'}",
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    trailing: Text(
+                      favorite['category'] ?? 'Unknown',
+                      style: const TextStyle(fontSize: 14, color: Colors.blue),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicv_project/widgets/widget_support.dart';
 import 'package:comicv_project/screens/post_comic_screen.dart';
 import 'package:comicv_project/screens/favorite_screen.dart';
@@ -15,36 +18,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-
-  final List<String> _bannerImages = [
-    'assets/images/banner1.png',
-    'assets/images/banner2.png',
-    'assets/images/banner3.png',
-    'assets/images/banner4.png',
-    'assets/images/banner5.png',
-    'assets/images/banner6.png',
-    'assets/images/banner7.png',
-    'assets/images/banner8.png',
-  ];
-
-  final List<Map<String, String>> _products = [
-    {
-      'image': 'assets/images/product1.png',
-      'title': 'Comic Title 1',
-      'author': 'Author 1',
-      'price': '\$10',
-      'category': 'Comic',
-      'location': 'Tokyo, Japan', // Tambahkan lokasi
-    },
-    {
-      'image': 'assets/images/product2.png',
-      'title': 'Light Novel Title 1',
-      'author': 'Author 2',
-      'price': '\$15',
-      'category': 'Light Novel',
-      'location': 'Osaka, Japan', // Tambahkan lokasi
-    },
-  ];
 
   final List<Widget> _screens = [
     const HomeScreenContent(),
@@ -94,23 +67,6 @@ class HomeScreenContent extends StatelessWidget {
       'assets/images/banner6.png',
       'assets/images/banner7.png',
       'assets/images/banner8.png',
-    ];
-
-    final List<Map<String, String>> products = [
-      {
-        'image': 'assets/images/product1.png',
-        'title': 'I Got Married To The Girl I Hate Most In Class Volume 2',
-        'author': 'Yamazaki Ken',
-        'price': '\Rp180.000',
-        'category': 'Comic',
-      },
-      {
-        'image': 'assets/images/product2.png',
-        'title': 'I Got Married To The Girl I Hate Most In Class Volume 1',
-        'author': 'Hiroshi Takahashi',
-        'price': '\Rp150.000',
-        'category': 'Light Novel',
-      },
     ];
 
     return SingleChildScrollView(
@@ -300,103 +256,126 @@ class HomeScreenContent extends StatelessWidget {
                   style: AppWidget.HeadLineTextFeildStyle(),
                 ),
 
-                // Product Boxes
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.55, // Bentuk portrait
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final product = products[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => DetailScreen(
-                                  image: product['image']!,
-                                  title: product['title']!,
-                                  author: product['author']!,
-                                  price: product['price']!,
-                                  category: product['category']!,
+                // Product Boxes from Firestore
+                const SizedBox(height: 10.0),
+                StreamBuilder<QuerySnapshot>(
+                  stream:
+                      FirebaseFirestore.instance
+                          .collection('posts')
+                          .orderBy('createdAt', descending: true)
+                          .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(
+                        child: Text("No products available."),
+                      );
+                    }
+                    final products = snapshot.data!.docs;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.55, // Bentuk portrait
+                          ),
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        final product = products[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => DetailScreen(
+                                      image: product['image'],
+                                      title: product['title'],
+                                      author: product['author'],
+                                      price: product['price'],
+                                      category: product['genre'],
+                                      description: product['description'],
+                                    ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey,
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 3),
                                 ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10),
+                                  ),
+                                  child:
+                                      product['image'] != null
+                                          ? Image.memory(
+                                            base64Decode(product['image']),
+                                            height: 200,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          )
+                                          : const Icon(Icons.image, size: 200),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        product['title'],
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        product['author'],
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        product['genre'],
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       },
-
-                      // box border
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey,
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                              ),
-                              child: Image.asset(
-                                product['image']!,
-                                height: 200,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    product['title']!,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    product['author']!,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    product['category']!,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.blue,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                     );
                   },
                 ),

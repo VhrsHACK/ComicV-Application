@@ -201,7 +201,10 @@ class DetailScreen extends StatelessWidget {
 }
 */
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicv_project/screens/favorite_screen.dart';
 
 class DetailScreen extends StatefulWidget {
@@ -210,6 +213,7 @@ class DetailScreen extends StatefulWidget {
   final String author;
   final String price;
   final String category;
+  final String description;
 
   const DetailScreen({
     super.key,
@@ -218,6 +222,7 @@ class DetailScreen extends StatefulWidget {
     required this.author,
     required this.price,
     required this.category,
+    required this.description,
   });
 
   @override
@@ -230,62 +235,86 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Cek apakah produk sudah ada di daftar favorit
-    isFavorite = FavoriteScreen.favorites.any(
-      (item) =>
-          item['title'] == widget.title &&
-          item['author'] == widget.author &&
-          item['price'] == widget.price &&
-          item['category'] == widget.category,
-    );
+    // Cek apakah produk sudah ada di daftar favorit di Firestore
+    _checkIfFavorite();
   }
 
-  void toggleFavorite(BuildContext context) {
+  Future<void> _checkIfFavorite() async {
+    final snapshot =
+        await FirebaseFirestore.instance
+            .collection('favorites')
+            .where('title', isEqualTo: widget.title)
+            .where('author', isEqualTo: widget.author)
+            .where('price', isEqualTo: widget.price)
+            .where('category', isEqualTo: widget.category)
+            .get();
+
+    setState(() {
+      isFavorite = snapshot.docs.isNotEmpty;
+    });
+  }
+
+  Future<void> toggleFavorite(BuildContext context) async {
     final favoriteItem = {
       'image': widget.image,
       'title': widget.title,
       'author': widget.author,
       'price': widget.price,
       'category': widget.category,
+      'description': widget.description,
     };
 
-    setState(() {
-      if (isFavorite) {
-        // Hapus dari daftar favorit
-        FavoriteScreen.favorites.removeWhere(
-          (item) =>
-              item['title'] == widget.title &&
-              item['author'] == widget.author &&
-              item['price'] == widget.price &&
-              item['category'] == widget.category,
-        );
-        isFavorite = false;
+    if (isFavorite) {
+      // Hapus dari daftar favorit
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('favorites')
+              .where('title', isEqualTo: widget.title)
+              .where('author', isEqualTo: widget.author)
+              .where('price', isEqualTo: widget.price)
+              .where('category', isEqualTo: widget.category)
+              .get();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Dihapus Dari Favorite",
-              style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } else {
-        // Tambahkan ke daftar favorit
-        FavoriteScreen.favorites.add(favoriteItem);
-        isFavorite = true;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Ditambahkan Ke Favorite",
-              style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
-            ),
-            backgroundColor: Color.fromARGB(252, 51, 78, 197),
-          ),
-        );
+      for (var doc in snapshot.docs) {
+        await FirebaseFirestore.instance
+            .collection('favorites')
+            .doc(doc.id)
+            .delete();
       }
-    });
+
+      setState(() {
+        isFavorite = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Dihapus dari Favorite",
+            style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      // Tambahkan ke daftar favorit
+      await FirebaseFirestore.instance
+          .collection('favorites')
+          .add(favoriteItem);
+
+      setState(() {
+        isFavorite = true;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Ditambahkan ke Favorite",
+            style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+          ),
+          backgroundColor: Color.fromARGB(252, 51, 78, 197),
+        ),
+      );
+    }
   }
 
   @override
@@ -321,12 +350,19 @@ class _DetailScreenState extends State<DetailScreen> {
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: Image.asset(
-                    widget.image,
-                    height: 600,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child:
+                      widget.image.isNotEmpty
+                          ? Image.memory(
+                            base64Decode(widget.image),
+                            height: 500,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                          : const Icon(
+                            Icons.image,
+                            size: 300,
+                            color: Colors.grey,
+                          ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -337,7 +373,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'poppins',
+                  fontFamily: 'Poppins',
                 ),
               ),
 
@@ -347,7 +383,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 "Author: ${widget.author}",
                 style: const TextStyle(
                   fontSize: 16,
-                  fontFamily: 'poppins',
+                  fontFamily: 'Poppins',
                   color: Colors.grey,
                 ),
               ),
@@ -358,7 +394,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 "Price: ${widget.price}",
                 style: const TextStyle(
                   fontSize: 16,
-                  fontFamily: 'poppins',
+                  fontFamily: 'Poppins',
                   color: Colors.black,
                 ),
               ),
@@ -369,7 +405,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 "Category: ${widget.category}",
                 style: const TextStyle(
                   fontSize: 16,
-                  fontFamily: 'poppins',
+                  fontFamily: 'Poppins',
                   color: Colors.blue,
                 ),
               ),
@@ -380,14 +416,14 @@ class _DetailScreenState extends State<DetailScreen> {
                 "Description",
                 style: TextStyle(
                   fontSize: 18,
-                  fontFamily: 'poppins',
+                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 10),
-              const Text(
-                "This is a detailed description of the product. You can add more information about the product here, such as its features, specifications, and other details.",
-                style: TextStyle(fontSize: 16, fontFamily: 'poppins'),
+              Text(
+                widget.description,
+                style: const TextStyle(fontSize: 16, fontFamily: 'Poppins'),
                 textAlign: TextAlign.justify,
               ),
             ],
