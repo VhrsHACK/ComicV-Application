@@ -20,7 +20,7 @@ List<unboardingContent> contents = [
   // PAGE 2
   unboardingContent(
     description:
-        ' Komik dan Light Novel terlengkap dan terupdate\n             dengan harga yang terjangkau',
+        '        Komik dan Light Novel terlengkap dan\n   terupdate dengan harga yang terjangkau',
     image: 'images/logocomicv2.png',
     title: 'Complete ',
   ),

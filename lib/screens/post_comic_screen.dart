@@ -1,35 +1,3 @@
-/*import 'package:flutter/material.dart';
-
-class PostComicScreen extends StatelessWidget {
-  const PostComicScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: const Text(
-            "Post Comic",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins', // Menggunakan font Poppins
-            ),
-          ),
-        ),
-        backgroundColor: const Color.fromARGB(252, 51, 78, 197),
-        automaticallyImplyLeading: false,
-      ), // Menghilangkan ikon back
-      body: const Center(
-        child: Text(
-          "Post Comic Screen",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-}*/
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
