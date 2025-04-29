@@ -91,7 +91,7 @@ class HomeScreenContent extends StatelessWidget {
           // White Container with Rounded Corners
           Container(
             margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height / 3,
+              top: MediaQuery.of(context).size.height / 3.5,
             ),
             height: MediaQuery.of(context).size.height / 0.5,
             width: MediaQuery.of(context).size.width,
