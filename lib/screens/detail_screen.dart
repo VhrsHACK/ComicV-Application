@@ -187,7 +187,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
               // Harga Produk
               Text(
-                "Price: ${widget.price}",
+                "Price: Rp.${widget.price}",
                 style: const TextStyle(
                   fontSize: 16,
                   fontFamily: 'Poppins',

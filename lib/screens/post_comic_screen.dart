@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:comicv_project/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -123,7 +124,24 @@ class _AddPostScreenState extends State<PostComicScreen> {
       });
 
       if (!mounted) return;
-      Navigator.pop(context);
+
+      // Tampilkan notifikasi setelah berhasil upload
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Comic berhasil di upload',
+            style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Kembali ke halaman HomeScreen
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        (route) => false,
+      );
     } catch (e) {
       debugPrint('Upload failed: $e');
       if (!mounted) return;
