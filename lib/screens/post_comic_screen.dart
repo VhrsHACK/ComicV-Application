@@ -104,7 +104,6 @@ class _AddPostScreenState extends State<PostComicScreen> {
     try {
       await _getLocation();
 
-      // Ambil nama lengkap dari koleksi users
       final userDoc =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
       final fullName = userDoc.data()?['fullName'] ?? 'Anonymous';
@@ -120,12 +119,10 @@ class _AddPostScreenState extends State<PostComicScreen> {
         'latitude': _latitude,
         'longitude': _longitude,
         'fullName': fullName,
-        'userId': uid, // optional: jika ingin simpan UID juga
+        'userId': uid,
       });
-
       if (!mounted) return;
 
-      // Tampilkan notifikasi setelah berhasil upload
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -136,7 +133,6 @@ class _AddPostScreenState extends State<PostComicScreen> {
         ),
       );
 
-      // Kembali ke halaman HomeScreen
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
