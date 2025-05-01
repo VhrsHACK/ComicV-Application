@@ -63,6 +63,7 @@ class HomeScreenContent extends StatefulWidget {
 class _HomeScreenContentState extends State<HomeScreenContent> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String _selectedCategory = '';
 
   Widget build(BuildContext context) {
     final List<String> bannerImages = [
@@ -206,73 +207,30 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                   "Popular Comics",
                   style: AppWidget.HeadLineTextFeildStyle(),
                 ),
+
                 const SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(252, 51, 78, 197),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          "Comic",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(252, 51, 78, 197),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          "Light Novel",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildCategoryButton(
+                      "All",
+                    ), // Tombol untuk menampilkan semua kategori
+                    _buildCategoryButton("Light Novel"),
+                    _buildCategoryButton("Novel"),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildCategoryButton("Manhwa"),
+                    _buildCategoryButton("Manhua"),
+                    _buildCategoryButton("Manga"),
                   ],
                 ),
 
                 StreamBuilder<QuerySnapshot>(
-                  stream:
-                      _searchQuery.isEmpty
-                          ? FirebaseFirestore.instance
-                              .collection('posts')
-                              .orderBy('createdAt', descending: true)
-                              .snapshots()
-                          : FirebaseFirestore.instance
-                              .collection('posts')
-                              .where(
-                                'title',
-                                isGreaterThanOrEqualTo: _searchQuery,
-                              )
-                              .where(
-                                'title',
-                                isLessThanOrEqualTo: '$_searchQuery\uf8ff',
-                              )
-                              .snapshots(),
+                  stream: _getFilteredStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -384,5 +342,64 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
         ],
       ),
     );
+  }
+
+  Widget _buildCategoryButton(String category) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedCategory =
+              category == "All"
+                  ? ''
+                  : category; // Reset kategori jika "All" ditekan
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color:
+              _selectedCategory == category ||
+                      (category == "All" && _selectedCategory.isEmpty)
+                  ? const Color.fromARGB(252, 51, 78, 197)
+                  : Colors.grey[300],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          category,
+          style: TextStyle(
+            color:
+                _selectedCategory == category ||
+                        (category == "All" && _selectedCategory.isEmpty)
+                    ? Colors.white
+                    : Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Stream<QuerySnapshot> _getFilteredStream() {
+    if (_searchQuery.isNotEmpty) {
+      // Jika ada pencarian, filter berdasarkan judul
+      return FirebaseFirestore.instance
+          .collection('posts')
+          .where('title', isGreaterThanOrEqualTo: _searchQuery)
+          .where('title', isLessThanOrEqualTo: '$_searchQuery\uf8ff')
+          .snapshots();
+    } else if (_selectedCategory.isNotEmpty) {
+      // Jika kategori dipilih, filter berdasarkan kategori
+      return FirebaseFirestore.instance
+          .collection('posts')
+          .where('genre', isEqualTo: _selectedCategory)
+          .snapshots();
+    } else {
+      // Jika tidak ada pencarian atau kategori dipilih, tampilkan semua data
+      return FirebaseFirestore.instance
+          .collection('posts')
+          .orderBy('createdAt', descending: true)
+          .snapshots();
+    }
   }
 }
