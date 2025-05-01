@@ -238,12 +238,29 @@ class _AddPostScreenState extends State<PostComicScreen> {
               ),
             ),
             SizedBox(height: 16),
-            TextField(
-              controller: _genreController,
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: 1,
-              decoration: InputDecoration(
-                hintText: 'Category Comic',
+            DropdownButtonFormField<String>(
+              value:
+                  _genreController.text.isNotEmpty
+                      ? _genreController.text
+                      : null,
+              items: const [
+                DropdownMenuItem(
+                  value: 'Light Novel',
+                  child: Text('Light Novel'),
+                ),
+                DropdownMenuItem(value: 'Novel', child: Text('Novel')),
+                DropdownMenuItem(value: 'Manhwa', child: Text('Manhwa')),
+                DropdownMenuItem(value: 'Manhua', child: Text('Manhua')),
+                DropdownMenuItem(value: 'Manga', child: Text('Manga')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _genreController.text =
+                      value ?? ''; // Update nilai genreController
+                });
+              },
+              decoration: const InputDecoration(
+                hintText: 'Select Category',
                 border: OutlineInputBorder(),
               ),
             ),

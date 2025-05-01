@@ -53,10 +53,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class HomeScreenContent extends StatelessWidget {
+class HomeScreenContent extends StatefulWidget {
   const HomeScreenContent({super.key});
 
   @override
+  State<HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<HomeScreenContent> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   Widget build(BuildContext context) {
     final List<String> bannerImages = [
       'assets/images/banner1.png',
@@ -72,7 +79,6 @@ class HomeScreenContent extends StatelessWidget {
     return SingleChildScrollView(
       child: Stack(
         children: [
-          // Background Gradient
           Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 2.5,
@@ -88,7 +94,6 @@ class HomeScreenContent extends StatelessWidget {
             ),
           ),
 
-          // White Container with Rounded Corners
           Container(
             margin: EdgeInsets.only(
               top: MediaQuery.of(context).size.height / 3.5,
@@ -104,13 +109,11 @@ class HomeScreenContent extends StatelessWidget {
             ),
           ),
 
-          // Content
           Container(
             margin: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Hello Reader and Icon
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -128,9 +131,14 @@ class HomeScreenContent extends StatelessWidget {
                   ],
                 ),
 
-                // Search Bar
                 const SizedBox(height: 20.0),
                 TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.trim(); // Perbarui teks pencarian
+                    });
+                  },
                   decoration: InputDecoration(
                     hintText: "Search Comics or Light Novels",
                     prefixIcon: const Icon(
@@ -149,7 +157,6 @@ class HomeScreenContent extends StatelessWidget {
                   ),
                 ),
 
-                // Welcome Text
                 const SizedBox(height: 20.0),
                 Center(
                   child: Text(
@@ -168,7 +175,6 @@ class HomeScreenContent extends StatelessWidget {
                   ),
                 ),
 
-                // Banner Slider
                 const SizedBox(height: 60.0),
                 CarouselSlider(
                   options: CarouselOptions(
@@ -195,15 +201,17 @@ class HomeScreenContent extends StatelessWidget {
                       }).toList(),
                 ),
 
-                // Categories
+                const SizedBox(height: 20.0),
+                Text(
+                  "Popular Comics",
+                  style: AppWidget.HeadLineTextFeildStyle(),
+                ),
                 const SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        // Handle Comic Category Tap
-                      },
+                      onTap: () {},
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
@@ -224,9 +232,7 @@ class HomeScreenContent extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        // Handle Light Novel Category Tap
-                      },
+                      onTap: () {},
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
@@ -249,21 +255,24 @@ class HomeScreenContent extends StatelessWidget {
                   ],
                 ),
 
-                // Popular Comics Section
-                const SizedBox(height: 20.0),
-                Text(
-                  "Popular Comics",
-                  style: AppWidget.HeadLineTextFeildStyle(),
-                ),
-
-                // Product Boxes from Firestore
-                const SizedBox(height: 10.0),
                 StreamBuilder<QuerySnapshot>(
                   stream:
-                      FirebaseFirestore.instance
-                          .collection('posts')
-                          .orderBy('createdAt', descending: true)
-                          .snapshots(),
+                      _searchQuery.isEmpty
+                          ? FirebaseFirestore.instance
+                              .collection('posts')
+                              .orderBy('createdAt', descending: true)
+                              .snapshots()
+                          : FirebaseFirestore.instance
+                              .collection('posts')
+                              .where(
+                                'title',
+                                isGreaterThanOrEqualTo: _searchQuery,
+                              )
+                              .where(
+                                'title',
+                                isLessThanOrEqualTo: '$_searchQuery\uf8ff',
+                              )
+                              .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -282,7 +291,7 @@ class HomeScreenContent extends StatelessWidget {
                             crossAxisCount: 2,
                             crossAxisSpacing: 10,
                             mainAxisSpacing: 10,
-                            childAspectRatio: 0.55, // Bentuk portrait
+                            childAspectRatio: 0.50,
                           ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
@@ -329,11 +338,11 @@ class HomeScreenContent extends StatelessWidget {
                                       product['image'] != null
                                           ? Image.memory(
                                             base64Decode(product['image']),
-                                            height: 200,
+                                            height: 250,
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                           )
-                                          : const Icon(Icons.image, size: 200),
+                                          : const Icon(Icons.image, size: 250),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -344,28 +353,18 @@ class HomeScreenContent extends StatelessWidget {
                                       Text(
                                         product['title'],
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        product['author'],
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
-                                        ),
-                                        maxLines: 1,
+                                        maxLines: 3,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
                                         product['genre'],
                                         style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.blue,
+                                          fontSize: 14,
+                                          color: Colors.black54,
                                         ),
                                       ),
                                     ],

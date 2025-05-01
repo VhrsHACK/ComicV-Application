@@ -31,7 +31,6 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Cek apakah produk sudah ada di daftar favorit di Firestore
     _checkIfFavorite();
   }
 
@@ -136,13 +135,13 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ],
       ),
+      backgroundColor: Colors.white, // Menambahkan background putih
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Gambar Produk
               Center(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
@@ -161,66 +160,160 @@ class _DetailScreenState extends State<DetailScreen> {
                           ),
                 ),
               ),
+
               const SizedBox(height: 20),
-
-              // Nama Produk
-              Text(
-                widget.title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
+              Center(
+                child: Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
                 ),
               ),
 
-              // Nama Penulis
               const SizedBox(height: 10),
-              Text(
-                "Author: ${widget.author}",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Poppins',
-                  color: Colors.grey,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 90, // Lebar tetap untuk label
+                        child: Text(
+                          "Author",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(
+                            255,
+                            94,
+                            94,
+                            94,
+                          ), // Background abu-abu
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          widget.author,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                            color: Colors.white, // Teks putih
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 90, // Lebar tetap untuk label
+                        child: Text(
+                          "Price",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black, // Background hitam
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "Rp.${widget.price}",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                            color: Colors.white, // Teks putih
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        width: 90, // Lebar tetap untuk label
+                        child: Text(
+                          "Category",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black, // Background hitam
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          widget.category,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                            color: Colors.white, // Teks putih
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
 
-              // Harga Produk
-              Text(
-                "Price: Rp.${widget.price}",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Poppins',
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              // Kategori Produk
-              Text(
-                "Category: ${widget.category}",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Poppins',
-                  color: Colors.blue,
-                ),
-              ),
               const SizedBox(height: 20),
-
-              // Deskripsi Produk
-              const Text(
-                "Description",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.bold,
+              Center(
+                child: const Text(
+                  "Sinopsis",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
-                widget.description,
-                style: const TextStyle(fontSize: 16, fontFamily: 'Poppins'),
-                textAlign: TextAlign.justify,
+              Center(
+                child: Text(
+                  widget.description,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                    color: Colors.black, // Warna teks hitam
+                  ),
+                  textAlign: TextAlign.justify,
+                ),
               ),
             ],
           ),
