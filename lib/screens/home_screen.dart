@@ -1,55 +1,17 @@
 import 'dart:convert';
-
+import 'package:comicv_project/screens/detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicv_project/widgets/widget_support.dart';
-import 'package:comicv_project/screens/post_comic_screen.dart';
-import 'package:comicv_project/screens/favorite_screen.dart';
-import 'package:comicv_project/screens/profile_screen.dart';
-import 'package:comicv_project/screens/detail_screen.dart';
+import 'package:comicv_project/screens/navbottom_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = [
-    const HomeScreenContent(),
-    const PostComicScreen(),
-    const FavoriteScreen(),
-    const ProfileScreen(),
-  ];
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: const Color.fromARGB(252, 51, 78, 197),
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.post_add), label: 'Post'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorite',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
-    );
+    return const NavBottomScreen(); // Gunakan NavBottomScreen di sini
   }
 }
 
@@ -65,6 +27,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   String _searchQuery = '';
   String _selectedCategory = '';
 
+  @override
   Widget build(BuildContext context) {
     final List<String> bannerImages = [
       'assets/images/banner1.png',
@@ -94,7 +57,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
               ),
             ),
           ),
-
           Container(
             margin: EdgeInsets.only(
               top: MediaQuery.of(context).size.height / 3.5,
@@ -109,7 +71,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
               ),
             ),
           ),
-
           Container(
             margin: const EdgeInsets.only(top: 40.0, left: 20.0, right: 20.0),
             child: Column(
@@ -131,13 +92,12 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20.0),
                 TextField(
                   controller: _searchController,
                   onChanged: (value) {
                     setState(() {
-                      _searchQuery = value.trim(); // Perbarui teks pencarian
+                      _searchQuery = value.trim();
                     });
                   },
                   decoration: InputDecoration(
@@ -157,7 +117,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     fillColor: const Color.fromARGB(251, 255, 255, 255),
                   ),
                 ),
-
                 const SizedBox(height: 20.0),
                 Center(
                   child: Text(
@@ -175,7 +134,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 60.0),
                 CarouselSlider(
                   options: CarouselOptions(
@@ -201,20 +159,16 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                         );
                       }).toList(),
                 ),
-
                 const SizedBox(height: 20.0),
                 Text(
                   "Popular Comics",
                   style: AppWidget.HeadLineTextFeildStyle(),
                 ),
-
                 const SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildCategoryButton(
-                      "All",
-                    ), // Tombol untuk menampilkan semua kategori
+                    _buildCategoryButton("All"),
                     _buildCategoryButton("Light Novel"),
                     _buildCategoryButton("Novel"),
                   ],
@@ -228,7 +182,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     _buildCategoryButton("Manga"),
                   ],
                 ),
-
                 StreamBuilder<QuerySnapshot>(
                   stream: _getFilteredStream(),
                   builder: (context, snapshot) {
@@ -249,7 +202,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             crossAxisCount: 2,
                             crossAxisSpacing: 10,
                             mainAxisSpacing: 10,
-                            childAspectRatio: 0.50,
+                            childAspectRatio: 0.48,
                           ),
                       itemCount: products.length,
                       itemBuilder: (context, index) {
@@ -348,10 +301,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _selectedCategory =
-              category == "All"
-                  ? ''
-                  : category; // Reset kategori jika "All" ditekan
+          _selectedCategory = category == "All" ? '' : category;
         });
       },
       child: Container(
@@ -382,20 +332,17 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
 
   Stream<QuerySnapshot> _getFilteredStream() {
     if (_searchQuery.isNotEmpty) {
-      // Jika ada pencarian, filter berdasarkan judul
       return FirebaseFirestore.instance
           .collection('posts')
           .where('title', isGreaterThanOrEqualTo: _searchQuery)
           .where('title', isLessThanOrEqualTo: '$_searchQuery\uf8ff')
           .snapshots();
     } else if (_selectedCategory.isNotEmpty) {
-      // Jika kategori dipilih, filter berdasarkan kategori
       return FirebaseFirestore.instance
           .collection('posts')
           .where('genre', isEqualTo: _selectedCategory)
           .snapshots();
     } else {
-      // Jika tidak ada pencarian atau kategori dipilih, tampilkan semua data
       return FirebaseFirestore.instance
           .collection('posts')
           .orderBy('createdAt', descending: true)

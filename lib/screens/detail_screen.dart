@@ -119,7 +119,7 @@ class _DetailScreenState extends State<DetailScreen> {
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontFamily: 'Poppins', // Menggunakan font Poppins
+            fontFamily: 'Poppins',
           ),
         ),
         backgroundColor: const Color.fromARGB(252, 51, 78, 197),
@@ -133,7 +133,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ],
       ),
-      backgroundColor: Colors.white, // Menambahkan background putih
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -179,7 +179,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(
-                        width: 90, // Lebar tetap untuk label
+                        width: 90,
                         child: Text(
                           "Author",
                           style: TextStyle(
@@ -196,12 +196,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(
-                            255,
-                            94,
-                            94,
-                            94,
-                          ), // Background abu-abu
+                          color: Colors.black,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
