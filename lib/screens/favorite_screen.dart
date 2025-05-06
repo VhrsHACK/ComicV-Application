@@ -50,7 +50,6 @@ class FavoriteScreen extends StatelessWidget {
               final favorite = favoriteDocs[index];
               return GestureDetector(
                 onTap: () {
-                  // Navigasi ke DetailScreen dengan data produk favorit
                   Navigator.push(
                     context,
                     MaterialPageRoute(

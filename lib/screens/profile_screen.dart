@@ -18,12 +18,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _profileImage;
   String? _profileImageBase64;
   bool _isImageChanged = false;
-  String? _password; // Variabel untuk menyimpan password pengguna
+  String? _password;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserPassword(); // Ambil password pengguna saat layar dimuat
+    _fetchUserPassword();
   }
 
   Future<void> _fetchUserPassword() async {
@@ -36,8 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (doc.exists) {
         setState(() {
-          _password =
-              doc.data()?['password'] ?? "No Password"; // Ambil password
+          _password = doc.data()?['password'] ?? "No Password";
         });
       } else {
         setState(() {
@@ -122,7 +121,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SingleChildScrollView(
         child: Stack(
           children: [
-            // Background Gradient
             Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height / 2.5,
@@ -138,7 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // White Container with Rounded Corners
             Container(
               margin: EdgeInsets.only(
                 top: MediaQuery.of(context).size.height / 3,
@@ -154,13 +151,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // Profile Content
             Container(
-              margin: const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
+              margin: const EdgeInsets.only(top: 60.0, left: 20.0, right: 20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Tulisan "Profile Account"
                   const Center(
                     child: Text(
                       "Profile Account",
@@ -172,9 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
-
-                  // Foto Profil
+                  const SizedBox(height: 30),
                   Center(
                     child: FutureBuilder<String?>(
                       future: _getProfileImageFromFirestore(),
@@ -218,9 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 100),
-
-                  // Email Box
+                  const SizedBox(height: 130),
                   Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.only(bottom: 10),
@@ -243,7 +234,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
-                  // Password Box (Tidak Ditampilkan)
                   Container(
                     padding: const EdgeInsets.all(15),
                     margin: const EdgeInsets.only(bottom: 10),
@@ -258,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            "********", // Password tidak ditampilkan
+                            "********",
                             style: const TextStyle(fontSize: 16),
                           ),
                         ),
@@ -297,7 +287,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
 
                   const SizedBox(height: 20),
-
                   Center(
                     child: ElevatedButton(
                       onPressed: () => signOut(context),
