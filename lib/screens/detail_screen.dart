@@ -60,7 +60,6 @@ class _DetailScreenState extends State<DetailScreen> {
     };
 
     if (isFavorite) {
-      // Hapus dari daftar favorit
       final snapshot =
           await FirebaseFirestore.instance
               .collection('favorites')
@@ -84,14 +83,13 @@ class _DetailScreenState extends State<DetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Dihapus dari Favorite",
+            "Comic Dihapus Dari Favorite",
             style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
           ),
           backgroundColor: Colors.red,
         ),
       );
     } else {
-      // Tambahkan ke daftar favorit
       await FirebaseFirestore.instance
           .collection('favorites')
           .add(favoriteItem);
@@ -103,7 +101,7 @@ class _DetailScreenState extends State<DetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Ditambahkan ke Favorite",
+            "Comic Ditambahkan Ke Favorite",
             style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
           ),
           backgroundColor: Color.fromARGB(252, 51, 78, 197),
