@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:comicv_project/screens/sign_in_screen.dart';
 import 'package:comicv_project/widgets/widget_support.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart'; // Tambahkan ini untuk Firestore
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -20,12 +22,23 @@ class _SignUpState extends State<SignUpScreen> {
   Future<void> registration() async {
     if (_formKey.currentState!.validate()) {
       try {
+        // Buat akun baru menggunakan Firebase Authentication
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
               email: emailController.text.trim(),
               password: passwordController.text.trim(),
             );
 
+        // Simpan data pengguna ke Firestore
+        await FirebaseFirestore.instance
+            .collection('users') // Koleksi "users"
+            .doc(userCredential.user?.uid) // Dokumen berdasarkan UID
+            .set({
+              'name': nameController.text.trim(), // Nama pengguna
+              'email': emailController.text.trim(), // Email pengguna
+            });
+
+        // Tampilkan pesan sukses
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.green,
@@ -36,11 +49,13 @@ class _SignUpState extends State<SignUpScreen> {
           ),
         );
 
+        // Navigasi ke HomeScreen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } on FirebaseAuthException catch (e) {
+        // Tangani error Firebase Authentication
         if (e.code == 'weak-password') {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
