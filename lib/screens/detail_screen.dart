@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicv_project/screens/favorite_screen.dart';
 
 class DetailScreen extends StatefulWidget {
+  final String id;
   final String image;
   final String title;
   final String author;
@@ -13,6 +15,7 @@ class DetailScreen extends StatefulWidget {
 
   const DetailScreen({
     super.key,
+    required this.id,
     required this.image,
     required this.title,
     required this.author,
@@ -57,16 +60,19 @@ class _DetailScreenState extends State<DetailScreen> {
       'price': widget.price,
       'category': widget.category,
       'description': widget.description,
+      'userId': FirebaseAuth.instance.currentUser?.uid,
+      'postId': widget.id,
     };
 
     if (isFavorite) {
       final snapshot =
           await FirebaseFirestore.instance
               .collection('favorites')
-              .where('title', isEqualTo: widget.title)
-              .where('author', isEqualTo: widget.author)
-              .where('price', isEqualTo: widget.price)
-              .where('category', isEqualTo: widget.category)
+              .where(
+                'userId',
+                isEqualTo: FirebaseAuth.instance.currentUser?.uid.toString(),
+              )
+              .where('postId', isEqualTo: widget.id)
               .get();
 
       for (var doc in snapshot.docs) {

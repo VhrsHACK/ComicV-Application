@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'detail_screen.dart';
@@ -24,7 +25,14 @@ class FavoriteScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('favorites').snapshots(),
+        stream:
+            FirebaseFirestore.instance
+                .collection('favorites')
+                .where(
+                  'userId',
+                  isEqualTo: FirebaseAuth.instance.currentUser?.uid.toString(),
+                )
+                .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -55,6 +63,7 @@ class FavoriteScreen extends StatelessWidget {
                     MaterialPageRoute(
                       builder:
                           (context) => DetailScreen(
+                            id: favorite['postId'],
                             image: favorite['image'],
                             title: favorite['title'],
                             author: favorite['author'],

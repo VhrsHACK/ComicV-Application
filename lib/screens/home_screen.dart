@@ -214,6 +214,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                               MaterialPageRoute(
                                 builder:
                                     (context) => DetailScreen(
+                                      id: product.id,
                                       image: product['image'],
                                       title: product['title'],
                                       author: product['author'],
