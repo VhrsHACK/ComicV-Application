@@ -221,7 +221,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(
-                        width: 90,
+                        width: 90, // Lebar tetap untuk label
                         child: Text(
                           "Price",
                           style: TextStyle(
@@ -238,7 +238,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.black, // Background hitam
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -246,7 +246,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontFamily: 'Poppins',
-                            color: Colors.white,
+                            color: Colors.white, // Teks putih
                           ),
                         ),
                       ),
@@ -257,7 +257,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(
-                        width: 90,
+                        width: 90, // Lebar tetap untuk label
                         child: Text(
                           "Category",
                           style: TextStyle(
@@ -274,7 +274,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.black, // Background hitam
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -282,7 +282,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontFamily: 'Poppins',
-                            color: Colors.white,
+                            color: Colors.white, // Teks putih
                           ),
                         ),
                       ),
@@ -309,7 +309,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontFamily: 'Poppins',
-                    color: Colors.black,
+                    color: Colors.black, // Warna teks hitam
                   ),
                   textAlign: TextAlign.justify,
                 ),
