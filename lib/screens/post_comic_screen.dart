@@ -68,7 +68,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: LocationSettings(accuracy: LocationAccuracy.high),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 20));
       setState(() {
         _latitude = position.latitude;
         _longitude = position.longitude;
