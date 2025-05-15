@@ -188,6 +188,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
         backgroundColor: const Color.fromARGB(252, 51, 78, 197),
         automaticallyImplyLeading: false,
       ),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -255,8 +256,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
               ],
               onChanged: (value) {
                 setState(() {
-                  _genreController.text =
-                      value ?? ''; // Update nilai genreController
+                  _genreController.text = value ?? '';
                 });
               },
               decoration: const InputDecoration(

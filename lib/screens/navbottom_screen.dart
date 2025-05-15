@@ -28,7 +28,7 @@ class _NavBottomScreenState extends State<NavBottomScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         selectedItemColor: const Color.fromARGB(252, 51, 78, 197),
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
         onTap: (index) {
           setState(() {
             _currentIndex = index;

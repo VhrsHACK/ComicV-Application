@@ -24,6 +24,7 @@ class FavoriteScreen extends StatelessWidget {
         backgroundColor: const Color.fromARGB(252, 51, 78, 197),
         automaticallyImplyLeading: false,
       ),
+      backgroundColor: Colors.white,
       body: StreamBuilder<QuerySnapshot>(
         stream:
             FirebaseFirestore.instance
@@ -40,7 +41,7 @@ class FavoriteScreen extends StatelessWidget {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
-                "No favorites yet!",
+                "Tidak ada produk yang disukai",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -75,6 +76,7 @@ class FavoriteScreen extends StatelessWidget {
                   );
                 },
                 child: Card(
+                  color: const Color.fromARGB(252, 51, 78, 197),
                   margin: const EdgeInsets.symmetric(
                     horizontal: 16.0,
                     vertical: 8.0,
@@ -97,15 +99,26 @@ class FavoriteScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     subtitle: Text(
                       "Author: ${favorite['author'] ?? 'Unknown'}\nPrice: ${favorite['price'] ?? 'N/A'}",
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color:
+                            Colors
+                                .white, // Mengubah teks menjadi putih agar kontras
+                      ),
                     ),
                     trailing: Text(
                       favorite['category'] ?? 'Unknown',
-                      style: const TextStyle(fontSize: 14, color: Colors.blue),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color:
+                            Colors
+                                .white, // Mengubah teks menjadi putih agar kontras
+                      ),
                     ),
                   ),
                 ),
