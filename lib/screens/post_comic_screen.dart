@@ -23,6 +23,8 @@ class _AddPostScreenState extends State<PostComicScreen> {
   final TextEditingController _genreController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _conditionController =
+      TextEditingController(); // Controller untuk kondisi buku
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
   double? _latitude;
@@ -83,7 +85,21 @@ class _AddPostScreenState extends State<PostComicScreen> {
   }
 
   Future<void> _submitPost() async {
-    if (_base64Image == null || _descriptionController.text.isEmpty) return;
+    if (_base64Image == null ||
+        _descriptionController.text.isEmpty ||
+        _conditionController.text.isEmpty) {
+      // Tambahkan validasi untuk kondisi buku
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Mohon lengkapi semua data termasuk kondisi buku',
+            style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isUploading = true);
 
@@ -112,6 +128,9 @@ class _AddPostScreenState extends State<PostComicScreen> {
         'genre': _genreController.text,
         'price': _priceController.text,
         'description': _descriptionController.text,
+        'condition':
+            _conditionController
+                .text, // Tambahkan field kondisi buku ke Firebase
         'createdAt': now,
         'latitude': _latitude,
         'longitude': _longitude,
@@ -265,6 +284,27 @@ class _AddPostScreenState extends State<PostComicScreen> {
               ),
             ),
             SizedBox(height: 16),
+            // Dropdown untuk pemilihan kondisi buku (baru atau bekas)
+            DropdownButtonFormField<String>(
+              value:
+                  _conditionController.text.isNotEmpty
+                      ? _conditionController.text
+                      : null,
+              items: const [
+                DropdownMenuItem(value: 'Baru', child: Text('Baru')),
+                DropdownMenuItem(value: 'Bekas', child: Text('Bekas')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _conditionController.text = value ?? '';
+                });
+              },
+              decoration: const InputDecoration(
+                hintText: 'Pilih Kondisi Buku',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
             TextField(
               controller: _descriptionController,
               textCapitalization: TextCapitalization.sentences,
@@ -278,6 +318,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
             _isUploading
                 ? CircularProgressIndicator()
                 : ElevatedButton.icon(
+                  icon: Icon(Icons.publish, color: Colors.white),
                   onPressed: _submitPost,
                   label: const Text(
                     "Post Comic",
