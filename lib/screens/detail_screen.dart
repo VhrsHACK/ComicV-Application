@@ -35,7 +35,7 @@ class _DetailScreenState extends State<DetailScreen> {
   bool isFavorite = false;
   double? postLatitude;
   double? postLongitude;
-  String bookCondition = 'N/A';
+  String bookCondition = 'Tidak Diketahui';
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Future<void> _getBookCondition() async {
     try {
-      if (widget.condition != 'N/A') {
+      if (widget.condition != 'Tidak Diketahui') {
         setState(() {
           bookCondition = widget.condition;
         });
