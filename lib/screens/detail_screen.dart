@@ -128,81 +128,130 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
+  // PERBAIKAN: Tambah filter berdasarkan userId
   Future<void> _checkIfFavorite() async {
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('favorites')
-            .where('title', isEqualTo: widget.title)
-            .where('author', isEqualTo: widget.author)
-            .where('price', isEqualTo: widget.price)
-            .where('category', isEqualTo: widget.category)
-            .get();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      setState(() {
+        isFavorite = false;
+      });
+      return;
+    }
 
-    setState(() {
-      isFavorite = snapshot.docs.isNotEmpty;
-    });
-  }
-
-  Future<void> toggleFavorite(BuildContext context) async {
-    final favoriteItem = {
-      'image': widget.image,
-      'title': widget.title,
-      'author': widget.author,
-      'price': widget.price,
-      'category': widget.category,
-      'description': widget.description,
-      'condition': bookCondition,
-      'userId': FirebaseAuth.instance.currentUser?.uid,
-      'postId': widget.id,
-    };
-
-    if (isFavorite) {
+    try {
       final snapshot =
           await FirebaseFirestore.instance
               .collection('favorites')
               .where(
                 'userId',
-                isEqualTo: FirebaseAuth.instance.currentUser?.uid.toString(),
-              )
-              .where('postId', isEqualTo: widget.id)
+                isEqualTo: currentUser.uid,
+              ) // Filter berdasarkan userId
+              .where(
+                'postId',
+                isEqualTo: widget.id,
+              ) // Gunakan postId untuk identifikasi yang lebih akurat
               .get();
 
-      for (var doc in snapshot.docs) {
-        await FirebaseFirestore.instance
-            .collection('favorites')
-            .doc(doc.id)
-            .delete();
-      }
-
+      setState(() {
+        isFavorite = snapshot.docs.isNotEmpty;
+      });
+    } catch (e) {
+      print('Error checking favorite status: $e');
       setState(() {
         isFavorite = false;
       });
+    }
+  }
 
+  // PERBAIKAN: Optimasi method toggleFavorite
+  Future<void> toggleFavorite(BuildContext context) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Comic Dihapus Dari Favorite",
+            "Silakan login terlebih dahulu",
             style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
           ),
           backgroundColor: Colors.red,
         ),
       );
-    } else {
-      await FirebaseFirestore.instance
-          .collection('favorites')
-          .add(favoriteItem);
+      return;
+    }
 
-      setState(() {
-        isFavorite = true;
-      });
+    try {
+      if (isFavorite) {
+        // Hapus dari favorite
+        final snapshot =
+            await FirebaseFirestore.instance
+                .collection('favorites')
+                .where('userId', isEqualTo: currentUser.uid)
+                .where('postId', isEqualTo: widget.id)
+                .get();
 
+        // Hapus semua dokumen yang cocok
+        for (var doc in snapshot.docs) {
+          await FirebaseFirestore.instance
+              .collection('favorites')
+              .doc(doc.id)
+              .delete();
+        }
+
+        setState(() {
+          isFavorite = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Comic Dihapus Dari Favorite",
+              style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        // Tambah ke favorite
+        final favoriteItem = {
+          'image': widget.image,
+          'title': widget.title,
+          'author': widget.author,
+          'price': widget.price,
+          'category': widget.category,
+          'description': widget.description,
+          'condition': bookCondition,
+          'userId': currentUser.uid, // Pastikan userId disimpan
+          'postId': widget.id, // Gunakan postId untuk identifikasi
+          'createdAt': FieldValue.serverTimestamp(), // Tambah timestamp
+        };
+
+        await FirebaseFirestore.instance
+            .collection('favorites')
+            .add(favoriteItem);
+
+        setState(() {
+          isFavorite = true;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Comic Ditambahkan Ke Favorite",
+              style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+            ),
+            backgroundColor: Color.fromARGB(252, 51, 78, 197),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error toggling favorite: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            "Comic Ditambahkan Ke Favorite",
+            "Terjadi kesalahan saat memproses favorite",
             style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
           ),
-          backgroundColor: Color.fromARGB(252, 51, 78, 197),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -258,7 +307,6 @@ class _DetailScreenState extends State<DetailScreen> {
                               ),
                     ),
                   ),
-
                   Positioned(
                     bottom: 10,
                     right: 10,
@@ -271,7 +319,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
               Center(
                 child: Text(
@@ -283,7 +330,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -339,7 +385,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -376,7 +421,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -413,7 +457,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -457,7 +500,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
               const Center(
                 child: Text(
