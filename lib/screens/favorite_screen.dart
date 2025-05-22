@@ -104,21 +104,11 @@ class FavoriteScreen extends StatelessWidget {
                     ),
                     subtitle: Text(
                       "Author: ${favorite['author'] ?? 'Unknown'}\nPrice: ${favorite['price'] ?? 'N/A'}",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color:
-                            Colors
-                                .white, // Mengubah teks menjadi putih agar kontras
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.white),
                     ),
                     trailing: Text(
                       favorite['category'] ?? 'Unknown',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color:
-                            Colors
-                                .white, // Mengubah teks menjadi putih agar kontras
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.white),
                     ),
                   ),
                 ),

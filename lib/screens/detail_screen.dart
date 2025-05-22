@@ -24,7 +24,7 @@ class DetailScreen extends StatefulWidget {
     required this.price,
     required this.category,
     required this.description,
-    this.condition = 'N/A',
+    this.condition = 'Tidak Diketahui',
   });
 
   @override
@@ -128,7 +128,6 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  // PERBAIKAN: Tambah filter berdasarkan userId
   Future<void> _checkIfFavorite() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -142,14 +141,8 @@ class _DetailScreenState extends State<DetailScreen> {
       final snapshot =
           await FirebaseFirestore.instance
               .collection('favorites')
-              .where(
-                'userId',
-                isEqualTo: currentUser.uid,
-              ) // Filter berdasarkan userId
-              .where(
-                'postId',
-                isEqualTo: widget.id,
-              ) // Gunakan postId untuk identifikasi yang lebih akurat
+              .where('userId', isEqualTo: currentUser.uid)
+              .where('postId', isEqualTo: widget.id)
               .get();
 
       setState(() {
@@ -163,7 +156,6 @@ class _DetailScreenState extends State<DetailScreen> {
     }
   }
 
-  // PERBAIKAN: Optimasi method toggleFavorite
   Future<void> toggleFavorite(BuildContext context) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -181,7 +173,6 @@ class _DetailScreenState extends State<DetailScreen> {
 
     try {
       if (isFavorite) {
-        // Hapus dari favorite
         final snapshot =
             await FirebaseFirestore.instance
                 .collection('favorites')
@@ -189,7 +180,6 @@ class _DetailScreenState extends State<DetailScreen> {
                 .where('postId', isEqualTo: widget.id)
                 .get();
 
-        // Hapus semua dokumen yang cocok
         for (var doc in snapshot.docs) {
           await FirebaseFirestore.instance
               .collection('favorites')
@@ -211,7 +201,6 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         );
       } else {
-        // Tambah ke favorite
         final favoriteItem = {
           'image': widget.image,
           'title': widget.title,
@@ -220,9 +209,9 @@ class _DetailScreenState extends State<DetailScreen> {
           'category': widget.category,
           'description': widget.description,
           'condition': bookCondition,
-          'userId': currentUser.uid, // Pastikan userId disimpan
-          'postId': widget.id, // Gunakan postId untuk identifikasi
-          'createdAt': FieldValue.serverTimestamp(), // Tambah timestamp
+          'userId': currentUser.uid,
+          'postId': widget.id,
+          'createdAt': FieldValue.serverTimestamp(),
         };
 
         await FirebaseFirestore.instance

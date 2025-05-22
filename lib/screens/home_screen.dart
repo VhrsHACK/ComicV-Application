@@ -11,7 +11,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const NavBottomScreen(); // Gunakan NavBottomScreen di sini
+    return const NavBottomScreen();
   }
 }
 
@@ -101,7 +101,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     });
                   },
                   decoration: InputDecoration(
-                    hintText: "Search Comics or Light Novels",
+                    hintText: "Cari Comic atau Light Novels",
                     prefixIcon: const Icon(
                       Icons.search,
                       color: Color.fromARGB(252, 51, 78, 197),

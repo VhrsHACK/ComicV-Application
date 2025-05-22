@@ -23,8 +23,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
   final TextEditingController _genreController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _conditionController =
-      TextEditingController(); // Controller untuk kondisi buku
+  final TextEditingController _conditionController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
   double? _latitude;
@@ -88,7 +87,6 @@ class _AddPostScreenState extends State<PostComicScreen> {
     if (_base64Image == null ||
         _descriptionController.text.isEmpty ||
         _conditionController.text.isEmpty) {
-      // Tambahkan validasi untuk kondisi buku
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -128,9 +126,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
         'genre': _genreController.text,
         'price': _priceController.text,
         'description': _descriptionController.text,
-        'condition':
-            _conditionController
-                .text, // Tambahkan field kondisi buku ke Firebase
+        'condition': _conditionController.text,
         'createdAt': now,
         'latitude': _latitude,
         'longitude': _longitude,
@@ -284,7 +280,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
               ),
             ),
             SizedBox(height: 16),
-            // Dropdown untuk pemilihan kondisi buku (baru atau bekas)
+
             DropdownButtonFormField<String>(
               value:
                   _conditionController.text.isNotEmpty
