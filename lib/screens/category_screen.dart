@@ -262,7 +262,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 crossAxisCount: 2,
                                 crossAxisSpacing: 15,
                                 mainAxisSpacing: 15,
-                                childAspectRatio: 0.48,
+                                childAspectRatio: 0.45,
                               ),
                           itemCount: products.length,
                           itemBuilder: (context, index) {
@@ -441,20 +441,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  if (product.data() != null &&
-                      (product.data() as Map<String, dynamic>).containsKey(
-                        'price',
-                      ) &&
-                      product['price'] != null)
-                    Text(
-                      'Rp ${product['price']}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(252, 51, 78, 197),
-                      ),
-                    ),
                 ],
               ),
             ),

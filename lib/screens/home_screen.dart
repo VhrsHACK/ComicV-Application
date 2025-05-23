@@ -57,7 +57,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
           ),
           Container(
             margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height / 3.5,
+              top: MediaQuery.of(context).size.height / 3,
             ),
             height: MediaQuery.of(context).size.height / 0.5,
             width: MediaQuery.of(context).size.width,
@@ -146,7 +146,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                 ),
                 Center(
                   child: Text(
-                    "Telusuri Comic dan Light Novel Terbaik Anda",
+                    "Telusuri Comic dan Light Novel Terbaik",
                     style: AppWidget.LightTextFeildStyle().copyWith(
                       color: Colors.white,
                     ),

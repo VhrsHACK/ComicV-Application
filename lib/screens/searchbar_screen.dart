@@ -260,7 +260,7 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
               crossAxisCount: 2,
               crossAxisSpacing: 15,
               mainAxisSpacing: 15,
-              childAspectRatio: 0.48,
+              childAspectRatio: 0.45,
             ),
             itemCount: products.length,
             itemBuilder: (context, index) {
@@ -303,7 +303,7 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 8,
-              offset: const Offset(0, 3),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -380,18 +380,6 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                         ),
                       ),
                     ),
-                    const Spacer(),
-                    if (data['author'] != null)
-                      Text(
-                        '${data['author']}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                          fontStyle: FontStyle.normal,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                   ],
                 ),
               ),

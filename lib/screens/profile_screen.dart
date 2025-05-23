@@ -369,7 +369,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
 
-          // White background container with border radius
           Container(
             margin: EdgeInsets.only(
               top: MediaQuery.of(context).size.height / 3,
@@ -392,14 +391,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                 opacity: _fadeAnimation,
                 child: Column(
                   children: [
-                    // Header
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Row(
                         children: [
                           const Expanded(
                             child: Text(
-                              "       Profile Account",
+                              "Profile Account",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 24,
@@ -408,14 +406,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(width: 48),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 20),
-
-                    // Profile Image
+                    const SizedBox(height: 10),
                     Center(
                       child: FutureBuilder<String?>(
                         future: _getProfileImageFromFirestore(),
@@ -514,8 +509,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
 
                     const SizedBox(height: 60),
-
-                    // Info Cards
                     Container(
                       width: MediaQuery.of(context).size.width,
                       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -545,8 +538,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
 
                     const SizedBox(height: 30),
-
-                    // Action Buttons
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
