@@ -12,10 +12,10 @@ class PostComicScreen extends StatefulWidget {
   const PostComicScreen({super.key});
 
   @override
-  State<PostComicScreen> createState() => _AddPostScreenState();
+  State<PostComicScreen> createState() => _PostComicScreenState();
 }
 
-class _AddPostScreenState extends State<PostComicScreen> {
+class _PostComicScreenState extends State<PostComicScreen> {
   File? _image;
   String? _base64Image;
   final TextEditingController _titleController = TextEditingController();
@@ -85,15 +85,31 @@ class _AddPostScreenState extends State<PostComicScreen> {
 
   Future<void> _submitPost() async {
     if (_base64Image == null ||
+        _titleController.text.isEmpty ||
+        _authorController.text.isEmpty ||
+        _genreController.text.isEmpty ||
+        _priceController.text.isEmpty ||
         _descriptionController.text.isEmpty ||
         _conditionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Mohon lengkapi semua data termasuk kondisi buku',
-            style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.warning, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Mohon lengkapi semua data termasuk gambar',
+                  style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+                ),
+              ),
+            ],
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       return;
@@ -106,9 +122,19 @@ class _AddPostScreenState extends State<PostComicScreen> {
 
     if (uid == null) {
       setState(() => _isUploading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('User not found.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 8),
+              Text('User tidak ditemukan'),
+            ],
+          ),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       return;
     }
 
@@ -133,15 +159,26 @@ class _AddPostScreenState extends State<PostComicScreen> {
         'fullName': fullName,
         'userId': uid,
       });
+
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Comic berhasil di upload',
-            style: TextStyle(fontSize: 16, fontFamily: 'Poppins'),
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 8),
+              Text(
+                'Comic berhasil diupload!',
+                style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+              ),
+            ],
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Colors.green.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
 
@@ -154,9 +191,19 @@ class _AddPostScreenState extends State<PostComicScreen> {
       debugPrint('Upload failed: $e');
       if (!mounted) return;
       setState(() => _isUploading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to upload the post.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Gagal mengupload comic'),
+            ],
+          ),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -165,171 +212,469 @@ class _AddPostScreenState extends State<PostComicScreen> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text("Choose Image Source"),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text(
+              "Pilih Sumber Gambar",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            content: const Text(
+              "Pilih dari mana Anda ingin mengambil foto comic",
+              style: TextStyle(fontFamily: 'Poppins'),
+            ),
             actions: [
-              TextButton(
+              TextButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.camera);
                 },
-                child: Text("Camera"),
+                icon: const Icon(Icons.camera_alt),
+                label: const Text("Kamera"),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(252, 51, 78, 197),
+                ),
               ),
-              TextButton(
+              TextButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
                   _pickImage(ImageSource.gallery);
                 },
-                child: Text("Gallery"),
+                icon: const Icon(Icons.photo_library),
+                label: const Text("Galeri"),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color.fromARGB(252, 51, 78, 197),
+                ),
               ),
             ],
           ),
     );
   }
 
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        textCapitalization: TextCapitalization.sentences,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        style: const TextStyle(fontFamily: 'Poppins'),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey.shade500,
+            fontFamily: 'Poppins',
+          ),
+          prefixIcon: Icon(icon, color: const Color(0xFF6C5CE7)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    required List<DropdownMenuItem<String>> items,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: DropdownButtonFormField<String>(
+        value: controller.text.isNotEmpty ? controller.text : null,
+        items: items,
+        onChanged: (value) {
+          setState(() {
+            controller.text = value ?? '';
+          });
+        },
+        style: const TextStyle(fontFamily: 'Poppins', color: Colors.black),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: Colors.grey.shade500,
+            fontFamily: 'Poppins',
+          ),
+          prefixIcon: Icon(icon, color: const Color.fromARGB(252, 51, 78, 197)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Center(
-          child: Text(
-            "Post Comic",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Poppins',
+      backgroundColor: const Color(0xFFF8F9FA),
+      body: Column(
+        children: [
+          Container(
+            height: 150,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color.fromARGB(252, 51, 78, 197),
+                  Color.fromARGB(255, 74, 144, 226),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Text(
+                        "Post Comic",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 40),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-        backgroundColor: const Color.fromARGB(252, 51, 78, 197),
-        automaticallyImplyLeading: false,
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _image != null
-                ? Image.file(
-                  _image!,
-                  height: 200,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                )
-                : GestureDetector(
-                  onTap: _showImageSourceDialog,
-                  child: Container(
-                    height: 200,
-                    color: Colors.grey[300],
-                    child: Center(child: Icon(Icons.add_a_photo, size: 50)),
-                  ),
-                ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _titleController,
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: 1,
-              decoration: InputDecoration(
-                hintText: 'Judul Comic',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _authorController,
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: 1,
-              decoration: InputDecoration(
-                hintText: 'Author Comic',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _priceController,
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: 1,
-              decoration: InputDecoration(
-                hintText: 'Harga Comic',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value:
-                  _genreController.text.isNotEmpty
-                      ? _genreController.text
-                      : null,
-              items: const [
-                DropdownMenuItem(
-                  value: 'Light Novel',
-                  child: Text('Light Novel'),
-                ),
-                DropdownMenuItem(value: 'Novel', child: Text('Novel')),
-                DropdownMenuItem(value: 'Manhwa', child: Text('Manhwa')),
-                DropdownMenuItem(value: 'Manhua', child: Text('Manhua')),
-                DropdownMenuItem(value: 'Manga', child: Text('Manga')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _genreController.text = value ?? '';
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: 'Select Category',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
 
-            DropdownButtonFormField<String>(
-              value:
-                  _conditionController.text.isNotEmpty
-                      ? _conditionController.text
-                      : null,
-              items: const [
-                DropdownMenuItem(value: 'Baru', child: Text('Baru')),
-                DropdownMenuItem(value: 'Bekas', child: Text('Bekas')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _conditionController.text = value ?? '';
-                });
-              },
-              decoration: const InputDecoration(
-                hintText: 'Pilih Kondisi Buku',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _descriptionController,
-              textCapitalization: TextCapitalization.sentences,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Deskripsi Comic',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 16),
-            _isUploading
-                ? CircularProgressIndicator()
-                : ElevatedButton.icon(
-                  icon: Icon(Icons.publish, color: Colors.white),
-                  onPressed: _submitPost,
-                  label: const Text(
-                    "Post Comic",
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Foto Comic",
                     style: TextStyle(
-                      color: Colors.white,
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF2D3436),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(252, 51, 78, 197),
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: _image == null ? _showImageSourceDialog : null,
+                    child: Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child:
+                          _image != null
+                              ? ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Stack(
+                                  children: [
+                                    Image.file(
+                                      _image!,
+                                      height: 200,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                    Positioned(
+                                      top: 8,
+                                      right: 8,
+                                      child: GestureDetector(
+                                        onTap: _showImageSourceDialog,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.5,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.edit,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                        252,
+                                        51,
+                                        78,
+                                        197,
+                                      ).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(50),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add_a_photo,
+                                      size: 40,
+                                      color: Color.fromARGB(252, 51, 78, 197),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Text(
+                                    "Tambahkan Foto Comic",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                      color: Color.fromARGB(252, 51, 78, 197),
+                                    ),
+                                  ),
+                                  const Text(
+                                    "Tap untuk memilih foto",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontFamily: 'Poppins',
+                                      color: Color(0xFF636E72),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                    ),
                   ),
-                ),
-          ],
-        ),
+
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Detail Comic",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF2D3436),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _titleController,
+                    hintText: 'Judul Comic',
+                    icon: Icons.book,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _authorController,
+                    hintText: 'Author Comic',
+                    icon: Icons.person,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _priceController,
+                    hintText: 'Harga Comic (Rp)',
+                    icon: Icons.attach_money,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDropdownField(
+                    controller: _genreController,
+                    hintText: 'Pilih Kategori',
+                    icon: Icons.category,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Light Novel',
+                        child: Text('Light Novel'),
+                      ),
+                      DropdownMenuItem(value: 'Novel', child: Text('Novel')),
+                      DropdownMenuItem(value: 'Manhwa', child: Text('Manhwa')),
+                      DropdownMenuItem(value: 'Manhua', child: Text('Manhua')),
+                      DropdownMenuItem(value: 'Manga', child: Text('Manga')),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDropdownField(
+                    controller: _conditionController,
+                    hintText: 'Pilih Kondisi Buku',
+                    icon: Icons.star,
+                    items: const [
+                      DropdownMenuItem(value: 'Baru', child: Text('Baru')),
+                      DropdownMenuItem(value: 'Bekas', child: Text('Bekas')),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _descriptionController,
+                    hintText: 'Deskripsi Comic',
+                    icon: Icons.description,
+                    maxLines: 4,
+                  ),
+
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child:
+                        _isUploading
+                            ? Container(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color.fromARGB(252, 51, 78, 197),
+                                    Color.fromARGB(255, 74, 144, 226),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      "Uploading...",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                            : ElevatedButton(
+                              onPressed: _submitPost,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: Ink(
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color.fromARGB(252, 51, 78, 197),
+                                      Color.fromARGB(255, 74, 144, 226),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.publish, color: Colors.white),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Post Comic",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          fontFamily: 'Poppins',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

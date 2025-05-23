@@ -25,6 +25,9 @@ class HomeScreenContent extends StatefulWidget {
 }
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
+  String _selectedCategory = '';
+  String _selectedCondition = '';
+
   @override
   Widget build(BuildContext context) {
     final List<String> bannerImages = [
@@ -57,7 +60,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
           ),
           Container(
             margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height / 3,
+              top: MediaQuery.of(context).size.height / 3.5,
             ),
             height: MediaQuery.of(context).size.height / 0.5,
             width: MediaQuery.of(context).size.width,
@@ -186,13 +189,24 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       style: AppWidget.HeadLineTextFeildStyle(),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const CategoryScreen(),
+                            builder:
+                                (context) => CategoryScreen(
+                                  initialCategory: _selectedCategory,
+                                  initialCondition: _selectedCondition,
+                                ),
                           ),
                         );
+
+                        if (result != null) {
+                          setState(() {
+                            _selectedCategory = result['category'] ?? '';
+                            _selectedCondition = result['condition'] ?? '';
+                          });
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -203,22 +217,22 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                           color: const Color.fromARGB(252, 51, 78, 197),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              "Filtered",
+                            const Text(
+                              "Filter",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(width: 5),
-                            Icon(
-                              Icons.arrow_drop_down,
+                            const SizedBox(width: 5),
+                            const Icon(
+                              Icons.tune,
                               color: Colors.white,
-                              size: 20,
+                              size: 16,
                             ),
                           ],
                         ),
@@ -226,15 +240,211 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+
+                // Active Filters Display
+                if (_selectedCategory.isNotEmpty ||
+                    _selectedCondition.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.filter_alt,
+                              size: 16,
+                              color: const Color.fromARGB(252, 51, 78, 197),
+                            ),
+                            const SizedBox(width: 5),
+                            const Text(
+                              'Active Filters:',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(252, 51, 78, 197),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (_selectedCategory.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(
+                                    252,
+                                    51,
+                                    78,
+                                    197,
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: const Color.fromARGB(
+                                      252,
+                                      51,
+                                      78,
+                                      197,
+                                    ),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _selectedCategory,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Color.fromARGB(252, 51, 78, 197),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedCategory = '';
+                                        });
+                                      },
+                                      child: const Icon(
+                                        Icons.close,
+                                        size: 14,
+                                        color: Color.fromARGB(252, 51, 78, 197),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            if (_selectedCondition.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _getConditionColor(
+                                    _selectedCondition,
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: _getConditionColor(
+                                      _selectedCondition,
+                                    ),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      height: 8,
+                                      decoration: BoxDecoration(
+                                        color: _getConditionColor(
+                                          _selectedCondition,
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      _selectedCondition,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: _getConditionColor(
+                                          _selectedCondition,
+                                        ),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedCondition = '';
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.close,
+                                        size: 14,
+                                        color: _getConditionColor(
+                                          _selectedCondition,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Results count
                 StreamBuilder<QuerySnapshot>(
-                  stream: _getProductsStream(),
+                  stream: _getFilteredStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          '${snapshot.data!.docs.length} items found',
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                      );
+                    }
+                    return Container();
+                  },
+                ),
+                StreamBuilder<QuerySnapshot>(
+                  stream: _getFilteredStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                        child: Text("No products available."),
+                      return Center(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 40),
+                            Icon(
+                              Icons.search_off,
+                              size: 60,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 15),
+                            Text(
+                              'No items found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Try adjusting your filters',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
                       );
                     }
                     final products = snapshot.data!.docs;
@@ -275,7 +485,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                               borderRadius: BorderRadius.circular(10),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey,
+                                  color: Colors.grey.withOpacity(0.3),
                                   spreadRadius: 2,
                                   blurRadius: 5,
                                   offset: const Offset(0, 3),
@@ -290,7 +500,8 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                     topLeft: Radius.circular(10),
                                     topRight: Radius.circular(10),
                                   ),
-                                  child:
+                                  child: Stack(
+                                    children: [
                                       product['image'] != null
                                           ? Image.memory(
                                             base64Decode(product['image']),
@@ -298,7 +509,48 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                             width: double.infinity,
                                             fit: BoxFit.cover,
                                           )
-                                          : const Icon(Icons.image, size: 250),
+                                          : Container(
+                                            height: 250,
+                                            width: double.infinity,
+                                            color: Colors.grey[200],
+                                            child: const Icon(
+                                              Icons.image,
+                                              size: 80,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                      if (product.data() != null &&
+                                          (product.data()
+                                                  as Map<String, dynamic>)
+                                              .containsKey('condition') &&
+                                          product['condition'] != null)
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _getConditionColor(
+                                                product['condition'],
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Text(
+                                              product['condition'],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -342,10 +594,39 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     );
   }
 
-  Stream<QuerySnapshot> _getProductsStream() {
-    return FirebaseFirestore.instance
-        .collection('posts')
-        .orderBy('createdAt', descending: true)
-        .snapshots();
+  Color _getConditionColor(String condition) {
+    switch (condition.toLowerCase()) {
+      case 'baru':
+        return Colors.green;
+      case 'bekas':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Stream<QuerySnapshot> _getFilteredStream() {
+    CollectionReference postsRef = FirebaseFirestore.instance.collection(
+      'posts',
+    );
+
+    if (_selectedCategory.isNotEmpty) {
+      if (_selectedCondition.isNotEmpty) {
+        return postsRef
+            .where('genre', isEqualTo: _selectedCategory)
+            .where('condition', isEqualTo: _selectedCondition)
+            .snapshots();
+      } else {
+        return postsRef
+            .where('genre', isEqualTo: _selectedCategory)
+            .snapshots();
+      }
+    } else if (_selectedCondition.isNotEmpty) {
+      return postsRef
+          .where('condition', isEqualTo: _selectedCondition)
+          .snapshots();
+    } else {
+      return postsRef.orderBy('createdAt', descending: true).snapshots();
+    }
   }
 }
