@@ -306,7 +306,7 @@ class _AddPostScreenState extends State<PostComicScreen> {
               textCapitalization: TextCapitalization.sentences,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Description Comic',
+                hintText: 'Deskripsi Comic',
                 border: OutlineInputBorder(),
               ),
             ),

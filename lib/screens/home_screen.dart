@@ -1,6 +1,8 @@
 import 'dart:convert';
-import 'package:comicv_project/screens/detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:comicv_project/screens/detail_screen.dart';
+import 'package:comicv_project/screens/category_screen.dart';
+import 'package:comicv_project/screens/searchbar_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comicv_project/widgets/widget_support.dart';
@@ -23,10 +25,6 @@ class HomeScreenContent extends StatefulWidget {
 }
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  String _selectedCategory = '';
-
   @override
   Widget build(BuildContext context) {
     final List<String> bannerImages = [
@@ -52,7 +50,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                 end: Alignment.bottomRight,
                 colors: [
                   Color.fromARGB(252, 51, 78, 197),
-                  Color.fromARGB(252, 51, 78, 197),
+                  Color.fromARGB(255, 74, 144, 226),
                 ],
               ),
             ),
@@ -93,28 +91,48 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                   ],
                 ),
                 const SizedBox(height: 20.0),
-                TextField(
-                  controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value.trim();
-                    });
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchBarScreen(),
+                      ),
+                    );
                   },
-                  decoration: InputDecoration(
-                    hintText: "Cari Comic atau Light Novels",
-                    prefixIcon: const Icon(
-                      Icons.search,
-                      color: Color.fromARGB(252, 51, 78, 197),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 15,
                     ),
-                    hintStyle: const TextStyle(
-                      color: Color.fromARGB(252, 51, 78, 197),
-                    ),
-                    border: OutlineInputBorder(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    filled: true,
-                    fillColor: const Color.fromARGB(251, 255, 255, 255),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.search,
+                          color: Color.fromARGB(252, 51, 78, 197),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          "Cari Comic atau Light Novels",
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20.0),
@@ -160,30 +178,56 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       }).toList(),
                 ),
                 const SizedBox(height: 20.0),
-                Text(
-                  "Popular Comics",
-                  style: AppWidget.HeadLineTextFeildStyle(),
-                ),
-                const SizedBox(height: 20.0),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildCategoryButton("All"),
-                    _buildCategoryButton("Light Novel"),
-                    _buildCategoryButton("Novel"),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildCategoryButton("Manhwa"),
-                    _buildCategoryButton("Manhua"),
-                    _buildCategoryButton("Manga"),
+                    Text(
+                      "Newest Comic",
+                      style: AppWidget.HeadLineTextFeildStyle(),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CategoryScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(252, 51, 78, 197),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Filtered",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 5),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 StreamBuilder<QuerySnapshot>(
-                  stream: _getFilteredStream(),
+                  stream: _getProductsStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -298,56 +342,10 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
     );
   }
 
-  Widget _buildCategoryButton(String category) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCategory = category == "All" ? '' : category;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color:
-              _selectedCategory == category ||
-                      (category == "All" && _selectedCategory.isEmpty)
-                  ? const Color.fromARGB(252, 51, 78, 197)
-                  : Colors.grey[300],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          category,
-          style: TextStyle(
-            color:
-                _selectedCategory == category ||
-                        (category == "All" && _selectedCategory.isEmpty)
-                    ? Colors.white
-                    : Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Stream<QuerySnapshot> _getFilteredStream() {
-    if (_searchQuery.isNotEmpty) {
-      return FirebaseFirestore.instance
-          .collection('posts')
-          .where('title', isGreaterThanOrEqualTo: _searchQuery)
-          .where('title', isLessThanOrEqualTo: '$_searchQuery\uf8ff')
-          .snapshots();
-    } else if (_selectedCategory.isNotEmpty) {
-      return FirebaseFirestore.instance
-          .collection('posts')
-          .where('genre', isEqualTo: _selectedCategory)
-          .snapshots();
-    } else {
-      return FirebaseFirestore.instance
-          .collection('posts')
-          .orderBy('createdAt', descending: true)
-          .snapshots();
-    }
+  Stream<QuerySnapshot> _getProductsStream() {
+    return FirebaseFirestore.instance
+        .collection('posts')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
   }
 }
