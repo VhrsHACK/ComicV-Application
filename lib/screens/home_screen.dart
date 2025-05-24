@@ -62,7 +62,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
             margin: EdgeInsets.only(
               top: MediaQuery.of(context).size.height / 3.5,
             ),
-            height: MediaQuery.of(context).size.height / 0.5,
+            height: MediaQuery.of(context).size.height / 0.1,
             width: MediaQuery.of(context).size.width,
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -241,8 +241,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                   ],
                 ),
                 const SizedBox(height: 10),
-
-                // Active Filters Display
                 if (_selectedCategory.isNotEmpty ||
                     _selectedCondition.isNotEmpty)
                   Container(
@@ -390,7 +388,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     ),
                   ),
 
-                // Results count
                 StreamBuilder<QuerySnapshot>(
                   stream: _getFilteredStream(),
                   builder: (context, snapshot) {
