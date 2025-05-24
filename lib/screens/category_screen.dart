@@ -161,7 +161,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                 ? 'All'
                                 : _selectedCategory,
                         isExpanded: true,
+<<<<<<< HEAD
                         hint: const Text('Pilih Katasdasdwegori'),
+=======
+                        hint: const Text('Pilih Kategori'),
+>>>>>>> 0d0b237ca5fa34db768bfc06ed71bfad8e56e2fe
                         icon: const Icon(
                           Icons.arrow_drop_down,
                           color: Color.fromARGB(252, 51, 78, 197),
