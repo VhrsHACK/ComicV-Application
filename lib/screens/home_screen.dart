@@ -162,14 +162,14 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                     autoPlay: true,
                     enlargeCenterPage: true,
                     aspectRatio: 16 / 9,
-                    viewportFraction: 0.8,
+                    viewportFraction: 0.9,
                   ),
                   items:
                       bannerImages.map((imagePath) {
                         return Builder(
                           builder: (BuildContext context) {
                             return ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
                                 imagePath,
                                 fit: BoxFit.cover,
@@ -185,7 +185,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Newest Comic",
+                      "Comic Terbaru",
                       style: AppWidget.HeadLineTextFeildStyle(),
                     ),
                     GestureDetector(
@@ -200,7 +200,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                                 ),
                           ),
                         );
-
                         if (result != null) {
                           setState(() {
                             _selectedCategory = result['category'] ?? '';
@@ -257,7 +256,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             ),
                             const SizedBox(width: 5),
                             const Text(
-                              'Active Filters:',
+                              'Filter Sedang Aktif:',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -387,7 +386,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       ],
                     ),
                   ),
-
                 StreamBuilder<QuerySnapshot>(
                   stream: _getFilteredStream(),
                   builder: (context, snapshot) {
@@ -395,7 +393,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Text(
-                          '${snapshot.data!.docs.length} items found',
+                          '${snapshot.data!.docs.length} Comic/Light Novel ditemukan',
                           style: const TextStyle(
                             color: Colors.grey,
                             fontSize: 14,
@@ -424,7 +422,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             ),
                             const SizedBox(height: 15),
                             Text(
-                              'No items found',
+                              'Comic/Light Novel tidak ditemukan',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -433,7 +431,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              'Try adjusting your filters',
+                              'Silahkan benarkan filter anda',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[500],

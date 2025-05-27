@@ -508,8 +508,7 @@ class _PostComicScreenState extends State<PostComicScreen> {
                               ),
                     ),
                   ),
-
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   const Text(
                     "Detail Comic",
                     style: TextStyle(
@@ -571,7 +570,6 @@ class _PostComicScreenState extends State<PostComicScreen> {
                     icon: Icons.description,
                     maxLines: 4,
                   ),
-
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
