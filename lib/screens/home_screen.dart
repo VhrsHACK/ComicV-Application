@@ -185,7 +185,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Newest Comic",
+                      "Comic Terbaru",
                       style: AppWidget.HeadLineTextFeildStyle(),
                     ),
                     GestureDetector(
@@ -257,7 +257,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             ),
                             const SizedBox(width: 5),
                             const Text(
-                              'Active Filters:',
+                              'Filter Sedang Aktif:',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -391,24 +391,6 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                 StreamBuilder<QuerySnapshot>(
                   stream: _getFilteredStream(),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          '${snapshot.data!.docs.length} items found',
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
-                        ),
-                      );
-                    }
-                    return Container();
-                  },
-                ),
-                StreamBuilder<QuerySnapshot>(
-                  stream: _getFilteredStream(),
-                  builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
@@ -424,7 +406,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             ),
                             const SizedBox(height: 15),
                             Text(
-                              'No items found',
+                              'Comic Tidak Ditemukan',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -433,7 +415,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              'Try adjusting your filters',
+                              'Silahkan Perbaiki Filter Anda',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[500],
