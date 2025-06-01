@@ -36,6 +36,9 @@ class _DetailScreenState extends State<DetailScreen> {
   double? postLatitude;
   double? postLongitude;
   String bookCondition = 'Tidak Diketahui';
+  String? sellerWhatsApp;
+  String? sellerName;
+  bool isLoadingSellerInfo = true;
 
   @override
   void initState() {
@@ -43,6 +46,130 @@ class _DetailScreenState extends State<DetailScreen> {
     _checkIfFavorite();
     _getPostLocation();
     _getBookCondition();
+    _getSellerInfo();
+  }
+
+  Future<void> _getSellerInfo() async {
+    try {
+      setState(() {
+        isLoadingSellerInfo = true;
+      });
+
+      print('Getting seller info for post ID: ${widget.id}');
+
+      final postDoc =
+          await FirebaseFirestore.instance
+              .collection('posts')
+              .doc(widget.id)
+              .get();
+
+      if (postDoc.exists) {
+        final data = postDoc.data();
+        print('Post data found: $data');
+
+        if (data != null) {
+          String? phoneNumber =
+              data['whatsappNumber'] ??
+              data['whatsapp'] ??
+              data['phoneNumber'] ??
+              data['phone'] ??
+              data['nomorWa'] ??
+              data['nomorWhatsapp'] ??
+              data['noWa'];
+
+          print('Found phone number: $phoneNumber');
+
+          String? name =
+              data['fullName'] ??
+              data['sellerName'] ??
+              data['userName'] ??
+              data['name'] ??
+              'Penjual';
+
+          setState(() {
+            sellerWhatsApp = phoneNumber;
+            sellerName = name;
+            isLoadingSellerInfo = false;
+          });
+
+          print(
+            'Final seller info - WhatsApp: $sellerWhatsApp, Name: $sellerName',
+          );
+        } else {
+          print('Post data is null');
+          setState(() {
+            isLoadingSellerInfo = false;
+          });
+        }
+      } else {
+        print('Post document does not exist with ID: ${widget.id}');
+        setState(() {
+          isLoadingSellerInfo = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching seller info: $e');
+      setState(() {
+        isLoadingSellerInfo = false;
+      });
+    }
+  }
+
+  Future<void> _contactSeller() async {
+    if (sellerWhatsApp == null || sellerWhatsApp!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Nomor WhatsApp penjual tidak tersedia",
+            style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    String cleanNumber = sellerWhatsApp!.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (cleanNumber.startsWith('0')) {
+      cleanNumber = '62${cleanNumber.substring(1)}';
+    } else if (!cleanNumber.startsWith('62')) {
+      cleanNumber = '62$cleanNumber';
+    }
+
+    final message = Uri.encodeComponent(
+      'Halo, saya tertarik dengan komik "${widget.title}" yang Anda jual dengan harga Rp.${widget.price}. Apakah masih tersedia?',
+    );
+
+    final whatsappUrl = 'https://wa.me/$cleanNumber?text=$message';
+
+    try {
+      final uri = Uri.parse(whatsappUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Tidak dapat membuka WhatsApp",
+              style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error launching WhatsApp: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Terjadi kesalahan saat membuka WhatsApp",
+            style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _getBookCondition() async {
@@ -102,13 +229,27 @@ class _DetailScreenState extends State<DetailScreen> {
       final url =
           'https://www.google.com/maps/search/?api=1&query=$postLatitude,$postLongitude';
 
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
+      try {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "Tidak dapat membuka maps",
+                style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        print('Error launching maps: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              "Tidak dapat membuka maps",
+              "Terjadi kesalahan saat membuka maps",
               style: TextStyle(fontSize: 18.0, fontFamily: 'Poppins'),
             ),
             backgroundColor: Colors.red,
@@ -512,6 +653,54 @@ class _DetailScreenState extends State<DetailScreen> {
                   textAlign: TextAlign.justify,
                 ),
               ),
+              const SizedBox(height: 20),
+              Center(
+                child: Container(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton.icon(
+                    onPressed:
+                        (sellerWhatsApp != null &&
+                                sellerWhatsApp!.isNotEmpty &&
+                                !isLoadingSellerInfo)
+                            ? _contactSeller
+                            : null,
+                    icon: const Icon(Icons.chat, color: Colors.white, size: 24),
+                    label: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          isLoadingSellerInfo
+                              ? "Memuat..."
+                              : (sellerWhatsApp != null &&
+                                  sellerWhatsApp!.isNotEmpty)
+                              ? "Hubungi Penjual via WhatsApp"
+                              : "Kontak Tidak Tersedia",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          (sellerWhatsApp != null &&
+                                  sellerWhatsApp!.isNotEmpty &&
+                                  !isLoadingSellerInfo)
+                              ? const Color(0xFF25D366)
+                              : Colors.grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 3,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

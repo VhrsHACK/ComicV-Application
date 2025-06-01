@@ -24,6 +24,7 @@ class _PostComicScreenState extends State<PostComicScreen> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _conditionController = TextEditingController();
+  final TextEditingController _whatsappController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   bool _isUploading = false;
   double? _latitude;
@@ -83,6 +84,18 @@ class _PostComicScreenState extends State<PostComicScreen> {
     }
   }
 
+  String _formatWhatsAppNumber(String number) {
+    String cleanNumber = number.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (cleanNumber.startsWith('0')) {
+      cleanNumber = '62${cleanNumber.substring(1)}';
+    } else if (!cleanNumber.startsWith('62')) {
+      cleanNumber = '62$cleanNumber';
+    }
+
+    return cleanNumber;
+  }
+
   Future<void> _submitPost() async {
     if (_base64Image == null ||
         _titleController.text.isEmpty ||
@@ -90,7 +103,8 @@ class _PostComicScreenState extends State<PostComicScreen> {
         _genreController.text.isEmpty ||
         _priceController.text.isEmpty ||
         _descriptionController.text.isEmpty ||
-        _conditionController.text.isEmpty) {
+        _conditionController.text.isEmpty ||
+        _whatsappController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Row(
@@ -99,7 +113,7 @@ class _PostComicScreenState extends State<PostComicScreen> {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Mohon lengkapi semua data termasuk gambar',
+                  'Mohon lengkapi semua data termasuk gambar dan nomor WhatsApp',
                   style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
                 ),
               ),
@@ -119,6 +133,7 @@ class _PostComicScreenState extends State<PostComicScreen> {
 
     final now = DateTime.now().toIso8601String();
     final uid = FirebaseAuth.instance.currentUser?.uid;
+    final formattedWhatsApp = _formatWhatsAppNumber(_whatsappController.text);
 
     if (uid == null) {
       setState(() => _isUploading = false);
@@ -153,6 +168,7 @@ class _PostComicScreenState extends State<PostComicScreen> {
         'price': _priceController.text,
         'description': _descriptionController.text,
         'condition': _conditionController.text,
+        'whatsappNumber': formattedWhatsApp,
         'createdAt': now,
         'latitude': _latitude,
         'longitude': _longitude,
@@ -260,6 +276,7 @@ class _PostComicScreenState extends State<PostComicScreen> {
     required IconData icon,
     int maxLines = 1,
     TextInputType? keyboardType,
+    String? helperText,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -282,6 +299,12 @@ class _PostComicScreenState extends State<PostComicScreen> {
         style: const TextStyle(fontFamily: 'Poppins'),
         decoration: InputDecoration(
           hintText: hintText,
+          helperText: helperText,
+          helperStyle: TextStyle(
+            color: Colors.grey.shade600,
+            fontFamily: 'Poppins',
+            fontSize: 12,
+          ),
           hintStyle: TextStyle(
             color: Colors.grey.shade500,
             fontFamily: 'Poppins',
@@ -570,6 +593,24 @@ class _PostComicScreenState extends State<PostComicScreen> {
                     icon: Icons.description,
                     maxLines: 4,
                   ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "Kontak Penjual",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                      color: Color(0xFF2D3436),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _whatsappController,
+                    hintText: 'Nomor WhatsApp',
+                    icon: Icons.phone,
+                    keyboardType: TextInputType.phone,
+                  ),
+
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
