@@ -60,7 +60,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
           ),
           Container(
             margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height / 3.5,
+              top: MediaQuery.of(context).size.height / 3.2,
             ),
             height: MediaQuery.of(context).size.height / 0.1,
             width: MediaQuery.of(context).size.width,
